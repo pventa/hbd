@@ -41,24 +41,33 @@
   const video = document.getElementById('miVideo');
 
   btn.addEventListener('click', () => {
-    // 1. Ocultar el botón
     btn.style.display = 'none';
+
+    // 1. Silenciamos el video antes de la prueba
+    video.muted = true;
     
-    // 2. Preparar el video sin reproducir audio antes de tiempo
-    video.load();
+    // 2. Hacemos un reprodujo/pausa relámpago para desbloquear el permiso móvil
+    video.play().then(() => {
+      video.pause();
+      video.currentTime = 0; // Regresar al segundo 0
+      video.muted = false;   // Quitar el silencio para cuando detecte la foto
+    }).catch(err => {
+      console.log("Error desbloqueando medio:", err);
+      video.muted = false;
+    });
   });
 
   const target = document.querySelector('[mindar-image-target]');
 
-  // Reproducir solo cuando se detecte la foto
+  // Inicia video Y audio ÚNICAMENTE al enfocar la foto
   target.addEventListener("targetFound", () => {
     video.play().catch(err => console.log("Error al reproducir:", err));
   });
 
-  // Pausar y reiniciar el video si se pierde de vista la foto
+  // Pausa y reinicia si quitas la cámara de la foto
   target.addEventListener("targetLost", () => {
     video.pause();
-    video.currentTime = 0; // Vuelve al inicio para el siguiente escaneo
+    video.currentTime = 0;
   });
 </script>
   </body>
