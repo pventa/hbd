@@ -35,10 +35,9 @@
   <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
   <a-entity mindar-image-target="targetIndex: 0">
-    <!-- height="0.872" para tu imagen de 1340x1168 -->
-    <a-video src="#miVideo" width="1" height="0.75" position="0 0 0" rotation="0 0 0"></a-video>
-  </a-entity>
-</a-scene>
+  <!-- width="1" y height="0.75" mantienen el video de 640x480 con su forma original exacta -->
+  <a-video src="#miVideo" width="1" height="0.75" position="0 0 0" rotation="0 0 0"></a-video>
+</a-entity>
 
     <script>
   const btn = document.getElementById('start-btn');
