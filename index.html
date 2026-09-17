@@ -37,28 +37,29 @@
     </a-scene>
 
     <script>
-      const btn = document.getElementById('start-btn');
-      const video = document.getElementById('miVideo');
+  const btn = document.getElementById('start-btn');
+  const video = document.getElementById('miVideo');
 
-      btn.addEventListener('click', () => {
-        // Desbloquear audio/video en móviles
-        video.play().then(() => {
-          video.pause();
-          btn.style.display = 'none';
-        }).catch(err => {
-          console.log("Error al iniciar video:", err);
-          btn.style.display = 'none';
-        });
-      });
+  btn.addEventListener('click', () => {
+    // 1. Ocultar el botón
+    btn.style.display = 'none';
+    
+    // 2. Preparar el video sin reproducir audio antes de tiempo
+    video.load();
+  });
 
-      // Detectar cuando se encuentra la imagen objetivo
-      const target = document.querySelector('[mindar-image-target]');
-      target.addEventListener("targetFound", () => {
-        video.play();
-      });
-      target.addEventListener("targetLost", () => {
-        video.pause();
-      });
-    </script>
+  const target = document.querySelector('[mindar-image-target]');
+
+  // Reproducir solo cuando se detecte la foto
+  target.addEventListener("targetFound", () => {
+    video.play().catch(err => console.log("Error al reproducir:", err));
+  });
+
+  // Pausar y reiniciar el video si se pierde de vista la foto
+  target.addEventListener("targetLost", () => {
+    video.pause();
+    video.currentTime = 0; // Vuelve al inicio para el siguiente escaneo
+  });
+</script>
   </body>
 </html>
