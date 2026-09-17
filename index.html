@@ -2,7 +2,6 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Scripts corregidos de A-Frame y MindAR -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
@@ -25,9 +24,9 @@
   <body>
     <button id="start-btn">INICIAR CÁMARA AR</button>
 
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind; uiLoading: yes; filterMinCF: 0.0001; filterBeta: 0.001;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <!-- Agregamos autoStart: false para detener la cámara hasta pulsar el botón -->
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: yes; filterMinCF: 0.0001; filterBeta: 0.001;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       <a-assets>
-        <!-- Reemplaza "tu-video.mp4" por el nombre exacto de tu archivo de video -->
         <video id="miVideo" src="./wvideo.mp4" preload="auto" loop crossorigin="anonymous" webkit-playsinline playsinline></video>
       </a-assets>
 
@@ -41,27 +40,35 @@
     <script>
       const btn = document.getElementById('start-btn');
       const video = document.getElementById('miVideo');
+      const sceneEl = document.querySelector('a-scene');
       const target = document.querySelector('[mindar-image-target]');
 
       btn.addEventListener('click', () => {
+        // 1. Ocultar el botón
         btn.style.display = 'none';
 
-        // Reproduce brevemente en silencio para desbloquear permisos móviles
+        // 2. Iniciar la cámara y el motor de MindAR tras el click del usuario
+        const arSystem = sceneEl.systems["mindar-image-system"];
+        arSystem.start();
+
+        // 3. Activar y preparar la reproducción silenciosa para desbloquear el audio en móviles
         video.muted = true;
         video.play().then(() => {
           video.pause();
           video.currentTime = 0;
           video.muted = false;
         }).catch(err => {
-          console.log("Error al activar reproductor:", err);
+          console.log("Error al preparar reproductor:", err);
           video.muted = false;
         });
       });
 
+      // El video solo suena y corre al detectar la imagen
       target.addEventListener("targetFound", () => {
         video.play().catch(err => console.log("Error al reproducir:", err));
       });
 
+      // Se pausa y reinicia al perder de vista la foto
       target.addEventListener("targetLost", () => {
         video.pause();
         video.currentTime = 0;
