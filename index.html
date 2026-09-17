@@ -2,23 +2,63 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Cargar librerías de MindAR y A-Frame -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+      #start-btn {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+        padding: 15px 25px;
+        font-size: 18px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body style="margin: 0; overflow: hidden;">
-    <a-scene mindar-image="imageTargetSrc: ./tu-imagen.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <button id="start-btn">Iniciar Cámara AR</button>
+
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; uiLoading: yes;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       <a-assets>
-        <!-- Tu video subido localmente o alojado -->
         <video id="miVideo" src="./vhormiga.mp4" preload="auto" loop crossorigin="anonymous" webkit-playsinline playsinline></video>
       </a-assets>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <!-- El objetivo donde se montará el video al detectar la foto -->
       <a-entity mindar-image-target="targetIndex: 0">
         <a-video src="#miVideo" width="1" height="0.55" position="0 0 0" rotation="0 0 0"></a-video>
       </a-entity>
     </a-scene>
+
+    <script>
+      const btn = document.getElementById('start-btn');
+      const video = document.getElementById('miVideo');
+
+      btn.addEventListener('click', () => {
+        // Desbloquear audio/video en móviles
+        video.play().then(() => {
+          video.pause();
+          btn.style.display = 'none';
+        }).catch(err => {
+          console.log("Error al iniciar video:", err);
+          btn.style.display = 'none';
+        });
+      });
+
+      // Detectar cuando se encuentra la imagen objetivo
+      const target = document.querySelector('[mindar-image-target]');
+      target.addEventListener("targetFound", () => {
+        video.play();
+      });
+      target.addEventListener("targetLost", () => {
+        video.pause();
+      });
+    </script>
   </body>
 </html>
